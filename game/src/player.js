@@ -1,8 +1,8 @@
-// Lena Rook on foot and behind the wheel: walking and sprinting, arcade car physics
-// (accelerate, steer, handbrake), getting in and out of cars with E, body armor that
-// absorbs damage, garage upgrades that make cars faster and tougher, and the
-// collisions that follow — buildings stop you, other cars dent you, pedestrians get
-// run over.
+// Sugeng Wibowo on foot and behind the wheel: walking and sprinting, arcade car
+// physics (accelerate, steer, handbrake), getting in and out of cars with E, body
+// armor that absorbs damage, garage upgrades that make cars faster and tougher, and
+// the collisions that follow — buildings stop you, other cars dent you,
+// pedestrians get run over.
 import { CAR, PLAYER, UPGRADES, WANTED } from './config.js';
 import { addWanted, clampToWorld, collidesBuilding, showBanner } from './world.js';
 
@@ -57,14 +57,14 @@ function enterCar(world, car) {
   player.y = car.y;
   player.angle = car.angle;
   player.speed = 0;
-  // Garage armor reinforces any car Lena takes.
+  // Garage armor reinforces any car Sugeng takes.
   const bonus = UPGRADES.armor.health[world.upgrades.armor - 1] ?? 0;
   car.maxHealth = CAR.health + bonus;
   if (world.upgrades.armor > 0) car.health = car.maxHealth;
   if (car.kind === 'parked' || car.kind === 'traffic') {
     world.stats.carsStolen += 1;
     addWanted(world, WANTED.crimeSteal);
-    showBanner(world, car.kind === 'parked' ? `Stole the ${car.model} — CAPD noticed.` : `Carjacked the ${car.model} — CAPD noticed.`, 3);
+    showBanner(world, car.kind === 'parked' ? `Stole the ${car.model} — WPD noticed.` : `Carjacked the ${car.model} — WPD noticed.`, 3);
   }
   if (car.kind === 'police') {
     addWanted(world, WANTED.crimeSteal + 1);

@@ -1,6 +1,6 @@
 // A small seeded random number generator (mulberry32): the same seed gives the same
-// city, the same traffic and the same screenshot scenes, which is what makes ?shot=
-// repeatable. Helpers cover the draws the world builder needs; randBool takes a
+// Wilwatikta, the same traffic and the same screenshot scenes, which is what makes
+// ?shot= repeatable. Helpers cover the draws the world builder needs; randBool takes a
 // probability so placement odds read as plain numbers at the call site.
 
 export function createRandom(seed) {

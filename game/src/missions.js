@@ -1,9 +1,10 @@
-// Lena Rook's story: a twelve-mission chain across Costa Alba, handed out by the
-// fixer Eddie Vance. Each mission is a list of steps — go somewhere, pick someone
-// up, steal a marked car, lose the cops on a timer — with dialogue, heat that
-// arrives with the job, and cash on completion plus a time bonus for fast escapes.
-// The objective marker on the HUD and the minimap always points at the current step,
-// and finishing a mission raises the MISSION PASSED screen before the next job.
+// Sugeng Wibowo's story: a twelve-mission chain across Wilwatikta, handed out by
+// the fixer Agus Prasetyo. Each mission is a list of steps — go somewhere, pick
+// someone up, steal a marked car, lose the cops on a timer — with dialogue, heat
+// that arrives with the job, and cash on completion plus a time bonus for fast
+// escapes. The objective marker on the HUD and the minimap always points at the
+// current step, and finishing a mission raises the MISSION PASSED screen before
+// the next job.
 import { PALETTE } from './config.js';
 import { addWanted, showBanner, showDialogue } from './world.js';
 
@@ -15,77 +16,77 @@ import { addWanted, showBanner, showDialogue } from './world.js';
  */
 export const MISSIONS = [
   { name: '1 · First Delivery', reward: 150,
-    intro: 'EDDIE: Fresh in town? Take the package from the docks downtown. No detours.',
+    intro: 'AGUS: Fresh in town? Take the package from the docks to the Alun-Alun. No detours.',
     steps: [
-      { type: 'goto', x: 240, y: 240, text: 'Pick up the package at Porto Marina' },
-      { type: 'deliver', x: 2160, y: 1680, text: 'Deliver the package in El Centro' },
+      { type: 'goto', x: 240, y: 240, text: 'Pick up the package at Pelabuhan Segara' },
+      { type: 'deliver', x: 2160, y: 1680, text: 'Deliver the package in Alun-Alun' },
     ] },
   { name: '2 · Hot Wheels', reward: 250,
-    intro: 'EDDIE: I need wheels. Gold coupe, uptown — bring it to the garage.',
+    intro: 'AGUS: I need wheels. Gold coupe, uptown — bring it to Bambang’s garage.',
     steps: [
       { type: 'steal', x: 3120, y: 720, text: 'Steal the gold coupe uptown' },
       { type: 'deliver', x: 720, y: 720, text: 'Deliver the coupe to the garage' },
     ] },
   { name: '3 · Beach Pickup', reward: 300,
-    intro: 'LENA: Crew’s waiting on the beach. Then the safehouse — easy money.',
+    intro: 'SUGENG: Crew’s waiting on the beach. Then the safehouse — easy money.',
     steps: [
-      { type: 'pickup', x: 3120, y: 2640, text: 'Pick up the crew on Alba Beach' },
+      { type: 'pickup', x: 3120, y: 2640, text: 'Pick up the crew on Pantai Kidul' },
       { type: 'deliver', x: 1200, y: 720, text: 'Drive the crew to the safehouse' },
     ] },
   { name: '4 · The Getaway', reward: 500,
-    intro: 'EDDIE: The bank job is on. Grab the bag — then lose the cops. Sixty seconds.',
+    intro: 'AGUS: The bank job is on. Grab the bag — then lose the cops. Sixty seconds.',
     steps: [
-      { type: 'goto', x: 2160, y: 1200, text: 'Reach the bank in El Centro', heat: 3 },
+      { type: 'goto', x: 2160, y: 1200, text: 'Reach the bank in Alun-Alun', heat: 3 },
       { type: 'escape', x: 720, y: 2160, text: 'Escape to the hideout — lose the cops!', time: 60 },
     ] },
   { name: '5 · Night Freight', reward: 450,
-    intro: 'EDDIE: A crate comes in at the marina tonight. Take it to the Mercado.',
+    intro: 'AGUS: A crate comes in at the harbor tonight. Take it to Pasar Senja.',
     steps: [
-      { type: 'goto', x: 240, y: 2640, text: 'Collect the crate at the marina' },
-      { type: 'deliver', x: 1680, y: 240, text: 'Deliver the crate to the Mercado' },
+      { type: 'goto', x: 240, y: 2640, text: 'Collect the crate at the harbor' },
+      { type: 'deliver', x: 1680, y: 240, text: 'Deliver the crate to Pasar Senja' },
     ] },
   { name: '6 · Strip Coupe', reward: 700,
-    intro: 'LENA: A coupe on the Strip, keys in it. The docks want it quiet.',
+    intro: 'SUGENG: A coupe on Lorong Emas, keys in it. The docks want it quiet.',
     steps: [
-      { type: 'steal', x: 3600, y: 1200, text: 'Steal the coupe on the Gilded Strip' },
+      { type: 'steal', x: 3600, y: 1200, text: 'Steal the coupe on Lorong Emas' },
       { type: 'deliver', x: 240, y: 2160, text: 'Deliver the coupe to the docks' },
     ] },
   { name: '7 · The Informant', reward: 800,
-    intro: 'EDDIE: My man in El Centro talks too much. Hear him out — then vanish.',
+    intro: 'AGUS: My man in Alun-Alun talks too much. Hear him out — then vanish.',
     steps: [
-      { type: 'goto', x: 1200, y: 1200, text: 'Meet the informant in El Centro', heat: 2 },
+      { type: 'goto', x: 1200, y: 1200, text: 'Meet the informant in Alun-Alun', heat: 2 },
       { type: 'escape', x: 2640, y: 2640, text: 'Lose the tail — reach the beach house', time: 75 },
     ] },
   { name: '8 · Casino Run', reward: 900,
-    intro: 'EDDIE: Three drops on the Strip, then back to the garage. Keep it smooth.',
+    intro: 'AGUS: Three drops on Lorong Emas, then back to the garage. Keep it smooth.',
     steps: [
-      { type: 'goto', x: 3120, y: 720, text: 'First drop: Casino Oro' },
-      { type: 'goto', x: 3600, y: 1680, text: 'Second drop: Club Luna' },
-      { type: 'goto', x: 3120, y: 2160, text: 'Third drop: the Gilded Palm' },
+      { type: 'goto', x: 3120, y: 720, text: 'First drop: Kasino Emas' },
+      { type: 'goto', x: 3600, y: 1680, text: 'Second drop: Klub Luna' },
+      { type: 'goto', x: 3120, y: 2160, text: 'Third drop: Kelapa Emas' },
       { type: 'deliver', x: 720, y: 720, text: 'Return to the garage' },
     ] },
   { name: '9 · Heat Wave', reward: 1100,
-    intro: 'LENA: Four stars and a helicopter. Time to show CAPD my taillights.',
+    intro: 'SUGENG: Four stars and a helicopter. Time to show WPD my taillights.',
     steps: [
       { type: 'goto', x: 2160, y: 1680, text: 'Grab the ledger downtown', heat: 4 },
       { type: 'escape', x: 240, y: 240, text: 'Outrun the helicopter — reach the docks!', time: 90 },
     ] },
   { name: '10 · The Vault', reward: 1400,
-    intro: 'EDDIE: The vault job. Ninety seconds from the alarm to the mansion.',
+    intro: 'AGUS: The vault job. Ninety seconds from the alarm to the mansion.',
     steps: [
-      { type: 'goto', x: 1680, y: 1200, text: 'Hit the vault in El Centro', heat: 3 },
+      { type: 'goto', x: 1680, y: 1200, text: 'Hit the vault in Alun-Alun', heat: 3 },
       { type: 'escape', x: 3600, y: 2640, text: 'Escape to the beach mansion', time: 90 },
     ] },
   { name: '11 · Double Cross', reward: 1600,
-    intro: 'EDDIE: Meet me at the marina. Come alone. …Something feels wrong.',
+    intro: 'AGUS: Meet me at the harbor. Come alone. …Something feels wrong.',
     steps: [
-      { type: 'goto', x: 1200, y: 2640, text: 'Meet Eddie at the marina', heat: 3 },
+      { type: 'goto', x: 1200, y: 2640, text: 'Meet Agus at the harbor', heat: 3 },
       { type: 'escape', x: 2640, y: 240, text: 'It was a setup — run!', time: 75 },
     ] },
   { name: '12 · The Last Ride', reward: 2500,
-    intro: 'LENA: One case, one ride across the whole city. Then Costa Alba is mine.',
+    intro: 'SUGENG: One case, one ride across the whole city. Then Wilwatikta is mine.',
     steps: [
-      { type: 'goto', x: 720, y: 2640, text: 'Pick up the case on Alba Beach', heat: 2 },
+      { type: 'goto', x: 720, y: 2640, text: 'Pick up the case on Pantai Kidul', heat: 2 },
       { type: 'escape', x: 3600, y: 720, text: 'The last ride — reach the mansion!', time: 120 },
     ] },
 ];
@@ -174,7 +175,7 @@ function completeStep(world) {
 
 function failMission(world) {
   const mission = currentMission(world);
-  showDialogue(world, 'EDDIE', 'You blew it. Again — from the top.', 4);
+  showDialogue(world, 'AGUS', 'You blew it. Again — from the top.', 4);
   showBanner(world, `${mission.name} failed — back to the start of the job.`, 4);
   world.mission.step = 0;
   world.mission.timer = 0;
@@ -190,8 +191,8 @@ export function advanceAfterPassed(world) {
     startMission(world, state.index + 1);
   } else {
     state.done = true;
-    showBanner(world, 'COSTA ALBA COMPLETE — Lena owns this city. Free roam!', 6);
-    showDialogue(world, 'LENA', 'Twelve jobs. This city is mine now.', 6);
+    showBanner(world, 'WILWATIKTA COMPLETE — Sugeng owns this city. Free roam!', 6);
+    showDialogue(world, 'SUGENG', 'Twelve jobs. This city is mine now.', 6);
   }
 }
 

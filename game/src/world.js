@@ -1,4 +1,4 @@
-// The city of Costa Alba and the live world state, with no drawing and no browser
+// The city of Wilwatikta and the live world state, with no drawing and no browser
 // in it: the street grid, six named districts, the blocks and their buildings, props
 // and signs, and every moving thing (the player, traffic and parked cars,
 // pedestrians, cops, the police helicopter, bullets, particles). createWorld builds
@@ -176,7 +176,7 @@ export function createCity(rng) {
   for (let j = 0; j < BLOCK_ROWS; j += 1) {
     for (let i = 0; i < BLOCK_COLS; i += 1) blocks.push(buildBlock(rng, i, j));
   }
-  // Boats anchored off the marina, in the ocean strip.
+  // Boats anchored off the harbor, in the ocean strip.
   const boats = [];
   for (let k = 0; k < 4; k += 1) {
     boats.push({ x: randRange(rng, 40, 150), y: randRange(rng, 300, 2600), angle: randRange(rng, -0.4, 0.4), seed: rng() });
@@ -288,7 +288,7 @@ export function createWorld(seed) {
   // steal is one walk away and the first drive starts on a street.
   world.cars.push({
     kind: 'parked', x: 2260, y: 1720, angle: 0, speed: 0,
-    color: PALETTE.playerCar, model: 'ALBA GT', health: CAR.health, maxHealth: CAR.health, dead: false,
+    color: PALETTE.playerCar, model: 'GARUDA GT', health: CAR.health, maxHealth: CAR.health, dead: false,
   });
   for (let k = 0; k < PEDS.count; k += 1) world.peds.push(spawnPed(rng));
   return world;
@@ -307,7 +307,7 @@ export function showDialogue(world, speaker, text, seconds) {
   world.dialogueUntil = world.time + seconds;
 }
 
-/** Show a CAPD dispatch line above the radio widget. */
+/** Show a WPD dispatch line above the radio widget. */
 export function showDispatch(world, text, seconds) {
   world.dispatch = text;
   world.dispatchUntil = world.time + seconds;

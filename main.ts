@@ -1,12 +1,12 @@
-// COSTA ALBA — Make GTA 6 (gta6-01): a 2D top-down open-world crime game in game/,
-// plain JavaScript + Canvas 2D with zero libraries and zero external assets — the city
-// of Costa Alba in six named districts (world.js), Lena Rook on foot and driving
-// (player.js), traffic and pedestrians (traffic.js), the wanted level, cop AI, the
-// police helicopter and roadblocks (police.js), a twelve-mission story chain with
-// dialogue and MISSION PASSED screens (missions.js), pistol/SMG combat and explosions
-// (combat.js), the full HUD + minimap + menus (hud.js), synthesized sound and a
-// two-station radio loop (audio.js), three save slots (save.js) and staged screenshots
-// (shots.js).
+// WILWATIKTA — Make GTA 6 (gta6-01): a 2D top-down open-world crime game in game/,
+// plain JavaScript + Canvas 2D with zero libraries and zero external assets — the
+// fictional Javanese city of Wilwatikta in six named districts (world.js), Sugeng
+// Wibowo on foot and driving (player.js), traffic and pedestrians (traffic.js), the
+// wanted level, cop AI, the police helicopter and roadblocks (police.js), a
+// twelve-mission story chain with dialogue and MISSION PASSED screens (missions.js),
+// pistol/SMG combat and explosions (combat.js), the full HUD + minimap + menus
+// (hud.js), synthesized sound and a two-station radio loop (audio.js), three save
+// slots (save.js) and staged screenshots (shots.js).
 //
 // A working gta6-01 entry (Node 22, standard library only): the game is this directory's
 // game/ folder, plain static files a desktop browser loads offline (game/index.html and its ES

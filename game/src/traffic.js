@@ -1,4 +1,4 @@
-// Costa Alba's traffic and its pedestrians. Traffic cars drive the street grid on
+// Wilwatikta's traffic and its pedestrians. Traffic cars drive the street grid on
 // the right side of the road and turn at intersections; pedestrians walk the
 // sidewalks, pause to look around, and run when a gun goes off or a car bears down
 // on them. Both respawn near the player when they wander too far, so the streets

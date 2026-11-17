@@ -1,7 +1,8 @@
-// COSTA ALBA — Make GTA 6 (gta6-01). Every tuning number, colour, name and list
+// WILWATIKTA — Make GTA 6 (gta6-01). Every tuning number, colour, name and list
 // in one place. The viewport is a fixed 1280x720 logical area, drawn with a closer
 // zoom so the action fills the frame; the city is a 3840x2880 world the camera moves
-// over. No rule below depends on the screen size.
+// over. No rule below depends on the screen size. Wilwatikta is a fictional city,
+// named with pride after the old Majapahit capital; its people carry Javanese names.
 export const FIELD = { width: 1280, height: 720 };
 export const WORLD = { width: 3840, height: 2880 };
 /** Camera zoom: 1.18 frames the action more densely than 1:1. */
@@ -13,8 +14,8 @@ export const STREET0 = 240;
 export const ROAD_W = 96;
 export const STEP = 1 / 60;
 
-export const BEST_KEY = 'costa-alba-best-cash';
-export const SAVE_KEYS = ['costa-alba-save-1', 'costa-alba-save-2', 'costa-alba-save-3'];
+export const BEST_KEY = 'wilwatikta-best-cash';
+export const SAVE_KEYS = ['wilwatikta-save-1', 'wilwatikta-save-2', 'wilwatikta-save-3'];
 
 export const PLAYER = {
   walkSpeed: 230,
@@ -38,8 +39,8 @@ export const CAR = {
 
 /** Garage upgrades: engine adds speed, armor adds car health and refills body armor. */
 export const UPGRADES = {
-  engine: { name: 'ENGINE TUNE', costs: [400, 800, 1400], speed: [0.08, 0.16, 0.26] },
-  armor: { name: 'CAR ARMOR', costs: [300, 700, 1200], health: [25, 50, 85] },
+  engine: { name: 'TUNE MESIN', costs: [400, 800, 1400], speed: [0.08, 0.16, 0.26] },
+  armor: { name: 'BAJA MOBIL', costs: [300, 700, 1200], health: [25, 50, 85] },
   repairCost: 100,
   armorRefillCost: 150,
 };
@@ -59,32 +60,32 @@ export const WANTED = {
 
 /** The six districts: id, display name, tagline, ground colour. */
 export const DISTRICTS = {
-  marina: { name: 'PORTO MARINA', tag: 'Docks, boats and bad deals', ground: '#87867e' },
-  downtown: { name: 'EL CENTRO', tag: 'Glass towers, gold teeth', ground: '#8f8f88' },
-  beach: { name: 'ALBA BEACH', tag: 'Surf, motels and getaway cars', ground: '#e0c48f' },
-  mercado: { name: 'MERCADO', tag: 'Spices, noise and second chances', ground: '#a89a7e' },
-  suburbs: { name: 'LAS PALMAS', tag: 'Quiet streets, loud secrets', ground: '#93ac6d' },
-  strip: { name: 'THE GILDED STRIP', tag: 'Neon, chips and high rollers', ground: '#9a8f7a' },
+  marina: { name: 'PELABUHAN SEGARA', tag: 'Docks, fishing boats and shady deals', ground: '#87867e' },
+  downtown: { name: 'ALUN-ALUN', tag: 'Old square, new towers, gold teeth', ground: '#8f8f88' },
+  beach: { name: 'PANTAI KIDUL', tag: 'Surf, warungs and getaway cars', ground: '#e0c48f' },
+  mercado: { name: 'PASAR SENJA', tag: 'Spices, noise and second chances', ground: '#a89a7e' },
+  suburbs: { name: 'KAMPUNG BATIK', tag: 'Quiet streets, loud secrets', ground: '#93ac6d' },
+  strip: { name: 'LORONG EMAS', tag: 'Neon, chips and high rollers', ground: '#9a8f7a' },
 };
 
 /** Business signs, one per district, drawn on the district's biggest building. */
 export const BUSINESSES = {
-  marina: ['MARINA DELI', 'FISH MARKET', 'BOAT YARD', 'ANCHOR BAR', 'NET & TACKLE'],
-  downtown: ['FIRST ALBA BANK', 'HOTEL ALBA', 'CITY HALL', 'TOWER ONE', 'LAW OFFICE'],
-  beach: ['MOTEL CORAL', 'ALBA SURF CO', 'TACOS EL FARO', 'BEACH BAR', 'SUNSET MOTEL'],
-  mercado: ['SPICE BAZAAR', 'FLOWER STALL', 'MEAT MARKET', 'CAFÉ LUNA', 'BAKERY'],
-  suburbs: ['DONUT RING', 'PUMP HOUSE GYM', 'LAUNDRY', 'CORNER STORE', 'PIZZA SLICE'],
-  strip: ['CASINO ORO', 'CLUB LUNA', 'THE GILDED PALM', 'NEON MOTEL', 'STEAK HOUSE'],
+  marina: ['WARUNG IKAN', 'PASAR IKAN', 'GALANGAN KAPAL', 'WARUNG KOPI', 'ALAT PANCING'],
+  downtown: ['BANK WILWATIKTA', 'HOTEL WILWATIKTA', 'BALAI KOTA', 'MENARA SATU', 'KANTOR HUKUM'],
+  beach: ['PENGINAPAN KARANG', 'SELANCAR KIDUL', 'SATE PANTAI', 'WARUNG SENJA', 'PENGINAPAN MATAHARI'],
+  mercado: ['PASAR REMPAH', 'KIOS BUNGA', 'PASAR DAGING', 'WARUNG LUNA', 'TOKO ROTI'],
+  suburbs: ['DONAT SARI', 'SANGGAR SENAM', 'LAUNDRY MBAK RATNA', 'TOKO KELONTONG', 'MARTABAK MANIS'],
+  strip: ['KASINO EMAS', 'KLUB LUNA', 'KELAPA EMAS', 'PENGINAPAN NEON', 'RUMAH STEAK'],
 };
 
-export const CAR_MODELS = ['ALBA GT', 'COMET S', 'FALCON', 'DUCHESS', 'RUSTLER', 'SUNDANCE'];
+export const CAR_MODELS = ['GARUDA GT', 'KENCANA S', 'ARJUNA', 'SRIKANDI', 'GATOTKACA', 'BIMA'];
 
 /** Radio stations: name, frequency, genre, tempo and bass root for the synth loop. */
 export const RADIO = [
-  { name: 'COSTA FM', freq: '101.1', genre: 'NIGHT DRIVE', bpm: 132, root: 110 },
-  { name: 'RADIO ALBA', freq: '88.5', genre: 'LATIN HEAT', bpm: 96, root: 131 },
+  { name: 'GAMELAN FM', freq: '101.1', genre: 'NIGHT DRIVE', bpm: 132, root: 110 },
+  { name: 'RADIO WILWATIKTA', freq: '88.5', genre: 'DANGDUT HEAT', bpm: 96, root: 131 },
 ];
-export const TRACKS = ['Midnight Run — The Palms', 'Neon Tide — Vega Six', 'Gold Coast — Marlow', 'Heat Wave — DJ Cielo'];
+export const TRACKS = ['Gending Wilwatikta — Larasati', 'Saron Senja — Srimpi', 'Ladrang Kidul — Gamelan Kencana', 'Gending Panas — DJ Srimpi'];
 
 export const PALETTE = {
   ocean: '#2e7fa8',

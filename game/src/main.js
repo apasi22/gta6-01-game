@@ -102,7 +102,7 @@ function runGame() {
     trackTimer = 0;
     screen = SCREEN_PLAY;
     audio.unlock();
-    announce('Playing. Lena Rook is on the streets of Costa Alba.');
+    announce('Playing. Sugeng Wibowo is on the streets of Wilwatikta.');
   }
 
   function endBusted() {
@@ -115,7 +115,7 @@ function runGame() {
     world.over = null;
     world.cops = [];
     clearRoadblock(world);
-    announce(`Busted. CAPD took $${lost}.`);
+    announce(`Busted. WPD took $${lost}.`);
   }
 
   function endWasted() {
@@ -125,7 +125,7 @@ function runGame() {
       best = world.player.cash;
       saveBest(best);
     }
-    announce('Wasted. Lena is down.');
+    announce('Wasted. Sugeng is down.');
   }
 
   function buyGarage(index) {
@@ -237,7 +237,7 @@ function runGame() {
       ui.slotSelect = false;
       ui.menuIndex = 0;
       screen = SCREEN_TITLE;
-      announce('Costa Alba. Press Enter to play.');
+      announce('Wilwatikta. Press Enter to play.');
     }
   }
 
@@ -266,7 +266,7 @@ function runGame() {
     } else if (screen === SCREEN_BUSTED || screen === SCREEN_WASTED) {
       if (menu.confirm) {
         if (screen === SCREEN_BUSTED) {
-          // Walk free: respawn at the CAPD station, heat off, story intact.
+          // Walk free: respawn at the WPD station, heat off, story intact.
           world.player.x = 1200;
           world.player.y = 780;
           world.player.onFoot = true;
@@ -274,7 +274,7 @@ function runGame() {
           world.camera.x = 1200;
           world.camera.y = 720;
           screen = SCREEN_PLAY;
-          announce('Free. Lena is back on the street.');
+          announce('Free. Sugeng is back on the street.');
         } else {
           clearSave(currentSlot);
           startGame(false, currentSlot);
@@ -370,7 +370,7 @@ function runGame() {
     }
   });
 
-  announce('Costa Alba. Choose Continue, New Game, or How to Play.');
+  announce('Wilwatikta. Choose Continue, New Game, or How to Play.');
   requestAnimationFrame(frame);
 }
 

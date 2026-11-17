@@ -5,7 +5,7 @@
 // silence, not an error.
 import { RADIO } from './config.js';
 
-// Minor-pentatonic steps for COSTA FM, major-ish steps for RADIO ALBA.
+// Minor-pentatonic steps for GAMELAN FM, major-ish steps for RADIO WILWATIKTA.
 const SCALES = [[0, 3, 5, 7, 10, 12, 15], [0, 2, 4, 7, 9, 12, 14]];
 const PATTERNS = [
   [0, -1, 2, -1, 4, -1, 3, 5, 0, -1, 2, 6, 4, 3, 2, 1],

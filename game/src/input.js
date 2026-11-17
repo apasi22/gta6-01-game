@@ -1,9 +1,9 @@
-// Keyboard + mouse input. One read per frame returns the control state for that
-// frame: a move vector for walking, throttle/steer/brake for driving, and
-// edge-triggered actions (enter car, punch, shoot, horn) consumed by the read.
-// Menus use takeMenu instead: up/down navigation, confirm, back, digit keys for save
-// slots and mute — it never eats the keys read() needs, and read() never eats the
-// keys menus need. Aim coordinates are corrected for the camera zoom.
+// Keyboard + mouse input for Wilwatikta. One read per frame returns the control
+// state for that frame: a move vector for walking, throttle/steer/brake for
+// driving, and edge-triggered actions (enter car, punch, shoot, horn) consumed by
+// the read. Menus use takeMenu instead: up/down navigation, confirm, back, digit
+// keys for save slots and mute — it never eats the keys read() needs, and read()
+// never eats the keys menus need. Aim coordinates are corrected for the camera zoom.
 import { FIELD, ZOOM } from './config.js';
 
 export const ACTION_CONFIRM = 1;

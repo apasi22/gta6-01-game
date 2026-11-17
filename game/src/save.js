@@ -1,6 +1,6 @@
 // Best cash and three save slots, in localStorage. Every access is guarded: storage
 // can be off (private windows), and then the numbers last this visit only. A save
-// holds cash, mission, position, stats, upgrades and the current weapon.
+// holds Sugeng's cash, mission, position, stats, upgrades and the current weapon.
 import { BEST_KEY, SAVE_KEYS } from './config.js';
 
 function read(key) {

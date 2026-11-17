@@ -1,19 +1,20 @@
-// The CAPD: the wanted level, cop cars that chase and ram, foot cops that chase on
-// foot and bust you, a helicopter with a searchlight at four stars and up, and
-// roadblocks thrown across your route. Cops spawn on roads near the player (never on
-// top of them), give up when far away, and the heat decays when you stay out of sight
-// — unless the helicopter is overhead, watching.
+// The WPD (Wilwatikta Police Department, under Komisaris Wanto): the wanted level,
+// cop cars that chase and ram, foot cops that chase on foot and bust you, a
+// helicopter with a searchlight at four stars and up, and roadblocks thrown across
+// your route. Cops spawn on roads near the player (never on top of them), give up
+// when far away, and the heat decays when you stay out of sight — unless the
+// helicopter is overhead, watching.
 import { CAR, COP, WANTED } from './config.js';
 import { addWanted, nearestIntersection, randomRoadPoint, showBanner, showDispatch } from './world.js';
 import { damagePlayer } from './player.js';
 
 const DISPATCH = [
-  'CAPD DISPATCH: suspect in a stolen car, last seen heading downtown.',
-  'CAPD DISPATCH: all units, armed driver — approach with caution.',
-  'CAPD DISPATCH: air support requested, suspect still mobile.',
-  'CAPD DISPATCH: roadblock units, cover the beach route.',
-  'CAPD DISPATCH: suspect vehicle damaged, smoking — close in.',
-  'CAPD DISPATCH: keep the perimeter tight, she is running out of road.',
+  'WPD DISPATCH: suspect in a stolen car, last seen heading to the Alun-Alun.',
+  'WPD DISPATCH: all units, armed driver — approach with caution.',
+  'WPD DISPATCH: air support requested, suspect still mobile.',
+  'WPD DISPATCH: roadblock units, cover the Pantai Kidul route.',
+  'WPD DISPATCH: suspect vehicle damaged, smoking — close in.',
+  'WPD DISPATCH: keep the perimeter tight, he is running out of road.',
 ];
 
 function nearestCopDistance(world) {
@@ -38,7 +39,7 @@ function spawnCopCar(world) {
     if (d > 650 && d < 1000) {
       world.cars.push({
         kind: 'police', x, y, angle: Math.atan2(player.y - y, player.x - x), speed: 0,
-        color: '#f5f5f0', model: 'CAPD CRUISER', health: CAR.health, maxHealth: CAR.health,
+        color: '#f5f5f0', model: 'WPD CRUISER', health: CAR.health, maxHealth: CAR.health,
         dead: false, light: 0,
       });
       return;
@@ -69,14 +70,14 @@ function spawnRoadblock(world) {
       x: horizontal ? junction.x : junction.x + side,
       y: horizontal ? junction.y + side : junction.y,
       angle: horizontal ? Math.PI / 2 : 0, speed: 0,
-      color: '#f5f5f0', model: 'CAPD CRUISER', health: CAR.health, maxHealth: CAR.health,
+      color: '#f5f5f0', model: 'WPD CRUISER', health: CAR.health, maxHealth: CAR.health,
       dead: false, light: 0,
     };
     world.cars.push(car);
     cars.push(car);
   }
   world.roadblock = { x: junction.x, y: junction.y, horizontal, cars };
-  showDispatch(world, 'CAPD DISPATCH: roadblock set — stop the suspect at the intersection.', 5);
+  showDispatch(world, 'WPD DISPATCH: roadblock set — stop the suspect at the intersection.', 5);
 }
 
 function clearRoadblock(world) {
@@ -129,7 +130,7 @@ function stepFootCop(world, cop, dt) {
   cop.y += Math.sin(cop.angle) * cop.speed * dt;
   if (d < COP.bustRange && player.onFoot) {
     world.over = 'busted';
-    showBanner(world, 'BUSTED — CAPD caught you.', 4);
+    showBanner(world, 'BUSTED — WPD caught you.', 4);
   }
   if (d > 1600) cop.hp = 0;
 }

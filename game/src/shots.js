@@ -1,5 +1,5 @@
 // The screenshot scenes behind ?shot=cover|foot|mission|chase. Each one sets the world
-// to a staged moment — Lena in a dusk chase with the helicopter overhead, on foot
+// to a staged moment — Sugeng in a dusk chase with the helicopter overhead, on foot
 // stealing the gold coupe, mid-mission at night in the harbor, five stars with a
 // roadblock ahead — then plays the real rules forward for a couple of seconds with a
 // simple autopilot that drives or walks toward the objective, so the frame is what
@@ -19,7 +19,7 @@ const FOOT_SECONDS = 2;
 const MISSION_SECONDS = 2;
 const CHASE_SECONDS = 2;
 
-const PARKED_MODELS = ['ALBA GT', 'COMET S', 'FALCON', 'DUCHESS', 'RUSTLER', 'SUNDANCE'];
+const PARKED_MODELS = ['GARUDA GT', 'KENCANA S', 'ARJUNA', 'SRIKANDI', 'GATOTKACA', 'BIMA'];
 const PARKED_COLORS = ['#2980b9', '#f39c12', '#7f8c8d', '#27ae60', '#8e44ad', '#d35400'];
 
 function baseCtl() {
@@ -79,7 +79,7 @@ function walkCtl(world, tx, ty) {
 function putPlayerInCar(world, x, y, angle, color, model) {
   const car = {
     kind: 'player', x, y, angle, speed: 320,
-    color, model: model ?? 'ALBA GT', health: 100, maxHealth: 100, dead: false,
+    color, model: model ?? 'GARUDA GT', health: 100, maxHealth: 100, dead: false,
   };
   world.cars.push(car);
   const player = world.player;
@@ -96,7 +96,7 @@ function putPlayerInCar(world, x, y, angle, color, model) {
 function putCopCar(world, x, y, angle) {
   const car = {
     kind: 'police', x, y, angle, speed: 300,
-    color: '#f5f5f0', model: 'CAPD CRUISER', health: 100, maxHealth: 100, dead: false, light: 0,
+    color: '#f5f5f0', model: 'WPD CRUISER', health: 100, maxHealth: 100, dead: false, light: 0,
   };
   world.cars.push(car);
   return car;
@@ -161,7 +161,7 @@ function playForward(world, seconds, ctlFor) {
     stepCombat(world, STEP, ctl);
     if (world.over) break;
   }
-  // The camera snaps to Lena: the shot is framed on her, not on the spawn point.
+  // The camera snaps to Sugeng: the shot is framed on him, not on the spawn point.
   world.camera.x = world.player.x;
   world.camera.y = world.player.y;
   // The staged banner, dialogue and dispatch stay up for the screenshot.
@@ -171,7 +171,7 @@ function playForward(world, seconds, ctlFor) {
 }
 
 function stageCover(world) {
-  // Dusk chase with the helicopter: Lena west through downtown on 1680th street,
+  // Dusk chase with the helicopter: Sugeng west through downtown on 1680th street,
   // four stars, mission 9's escape on the HUD, the helicopter overhead.
   world.clock = 18.67 * 3600;
   world.day = 2;
@@ -187,14 +187,14 @@ function stageCover(world) {
   world.station = 0;
   world.track = 1;
   world.banner = 'Outrun the helicopter — reach the docks!';
-  world.dialogue = 'Four stars and a helicopter. Time to show CAPD my taillights.';
-  world.dialogueSpeaker = 'LENA';
-  world.dispatch = 'CAPD DISPATCH: air support on scene, suspect heading west downtown.';
+  world.dialogue = 'Four stars and a helicopter. Time to show WPD my taillights.';
+  world.dialogueSpeaker = 'SUGENG';
+  world.dispatch = 'WPD DISPATCH: air support on scene, suspect heading west downtown.';
   world.heli.x = 2400;
   world.heli.y = 1500;
-  putPlayerInCar(world, 3120, 1680, Math.PI, PALETTE.playerCar, 'ALBA GT');
+  putPlayerInCar(world, 3120, 1680, Math.PI, PALETTE.playerCar, 'GARUDA GT');
   // The hero car is staged tough: the chase runs through downtown traffic, and the
-  // shot needs Lena driving at the end of it, not walking away from a wreck.
+  // shot needs Sugeng driving at the end of it, not walking away from a wreck.
   world.player.car.health = 400;
   world.player.car.maxHealth = 400;
   putCopCar(world, 3290, 1704, Math.PI);
@@ -210,8 +210,8 @@ function stageCover(world) {
 }
 
 function stageFoot(world) {
-  // On foot on the Gilded Strip in daylight, closing on the gold coupe while the
-  // street lives around her: pedestrians, traffic, neon signs, Eddie on the radio.
+  // On foot on Lorong Emas in daylight, closing on the gold coupe while the
+  // street lives around him: pedestrians, traffic, neon signs, Agus on the radio.
   world.clock = 14.0 * 3600;
   world.day = 1;
   world.mission = { index: 1, step: 0, timer: 0, done: false };
@@ -223,7 +223,7 @@ function stageFoot(world) {
   world.track = 2;
   world.banner = 'Steal the gold coupe uptown';
   world.dialogue = 'Gold coupe, keys in it. Bring it to the garage — and keep it quiet.';
-  world.dialogueSpeaker = 'EDDIE';
+  world.dialogueSpeaker = 'AGUS';
   world.player.x = 3040;
   world.player.y = 790;
   world.player.angle = 0;
@@ -243,13 +243,13 @@ function stageFoot(world) {
   placeTraffic(world, 3400, 696, 'x', -1);
   placeParked(world, 3050, 790);
   playForward(world, FOOT_SECONDS, (w) => walkCtl(w, 3110, 785));
-  // Lena ends the walk facing the coupe she came to steal.
+  // Sugeng ends the walk facing the coupe he came to steal.
   world.player.angle = Math.atan2(coupe.y - world.player.y, coupe.x - world.player.x);
 }
 
 function stageMission(world) {
   // Mission 11 at night in the harbor: 75 seconds on the clock, three stars, the
-  // escape marker ahead, Lena's car already at speed, lit windows everywhere.
+  // escape marker ahead, Sugeng's car already at speed, lit windows everywhere.
   world.clock = 21.5 * 3600;
   world.day = 3;
   world.wanted = 3;
@@ -264,10 +264,10 @@ function stageMission(world) {
   world.station = 0;
   world.track = 0;
   world.banner = 'It was a setup — run!';
-  world.dialogue = 'Eddie set me up. The case, the cops — all of it. I am done running.';
-  world.dialogueSpeaker = 'LENA';
-  world.dispatch = 'CAPD DISPATCH: suspect fleeing the marina, all units converge.';
-  putPlayerInCar(world, 720, 2160, -Math.PI / 2, PALETTE.playerCar, 'COMET S');
+  world.dialogue = 'Agus set me up. The case, the cops — all of it. I am done running.';
+  world.dialogueSpeaker = 'SUGENG';
+  world.dispatch = 'WPD DISPATCH: suspect fleeing the harbor, all units converge.';
+  putPlayerInCar(world, 720, 2160, -Math.PI / 2, PALETTE.playerCar, 'KENCANA S');
   world.player.car.health = 400;
   world.player.car.maxHealth = 400;
   putCopCar(world, 696, 2340, -Math.PI / 2);
@@ -280,8 +280,8 @@ function stageMission(world) {
 }
 
 function stageChase(world) {
-  // Five stars at dusk: Lena flat out east on 1200th street, two cops chasing, the
-  // helicopter overhead, a roadblock ahead, smoke trailing from her car.
+  // Five stars at dusk: Sugeng flat out east on 1200th street, two cops chasing, the
+  // helicopter overhead, a roadblock ahead, smoke trailing from his car.
   world.clock = 18.33 * 3600;
   world.day = 3;
   world.wanted = 5;
@@ -295,13 +295,13 @@ function stageChase(world) {
   world.stats.missionsDone = 11;
   world.station = 1;
   world.track = 3;
-  world.banner = 'Five stars. Every cop in Costa Alba is coming.';
-  world.dialogue = 'One case, one ride across the whole city. Then Costa Alba is mine.';
-  world.dialogueSpeaker = 'LENA';
-  world.dispatch = 'CAPD DISPATCH: roadblock set — stop the suspect at the intersection.';
+  world.banner = 'Five stars. Every cop in Wilwatikta is coming.';
+  world.dialogue = 'One case, one ride across the whole city. Then Wilwatikta is mine.';
+  world.dialogueSpeaker = 'SUGENG';
+  world.dispatch = 'WPD DISPATCH: roadblock set — stop the suspect at the intersection.';
   world.heli.x = 1400;
   world.heli.y = 1020;
-  putPlayerInCar(world, 1200, 1200, 0, PALETTE.playerCar, 'ALBA GT');
+  putPlayerInCar(world, 1200, 1200, 0, PALETTE.playerCar, 'GARUDA GT');
   putCopCar(world, 1030, 1224, 0);
   putCopCar(world, 1080, 1176, 0);
   const block1 = putCopCar(world, 2400, 1176, Math.PI / 2);

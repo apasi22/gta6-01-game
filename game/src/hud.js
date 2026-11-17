@@ -1,7 +1,7 @@
 // The HUD and every screen: the always-on frame (cash, stars, weapon, health,
 // armour, REP, district banner, mission banner, circular minimap, speedometer,
 // radio widget, dispatch line, dialogue, controls), the title menu with save
-// slots, the pause menu, Eddie's garage, the How to Play panel, the MISSION PASSED
+// slots, the pause menu, Bambang's garage, the How to Play panel, the MISSION PASSED
 // screen, and the BUSTED / WASTED overlays. Screens are named constants; main.js
 // owns the state machine, this file owns the paint.
 import { DISTRICTS, FIELD, FONT, PALETTE, RADIO, TRACKS, UPGRADES, WORLD } from './config.js';
@@ -17,7 +17,7 @@ export const SCREEN_PASSED = 'passed';
 export const SCREEN_BUSTED = 'busted';
 export const SCREEN_WASTED = 'wasted';
 
-const REP_TITLES = ['NOBODY', 'NOBODY', 'NOBODY', 'HUSTLER', 'HUSTLER', 'HUSTLER', 'WHEELMAN', 'WHEELMAN', 'WHEELMAN', 'LEGEND', 'LEGEND', 'LEGEND', 'QUEEN OF COSTA ALBA'];
+const REP_TITLES = ['PENDATANG', 'PENDATANG', 'PENDATANG', 'JAGOAN', 'JAGOAN', 'JAGOAN', 'PEMBALAP', 'PEMBALAP', 'PEMBALAP', 'LEGENDA', 'LEGENDA', 'LEGENDA', 'RAJA WILWATIKTA'];
 
 function panel(ctx, x, y, w, h, alpha) {
   ctx.fillStyle = `rgba(12,14,22,${alpha ?? 0.72})`;
@@ -125,7 +125,7 @@ function drawMissionBanner(ctx, world) {
   if (!objective) {
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 15px ' + FONT;
-    ctx.fillText('FREE ROAM — Costa Alba is yours', 366, 38);
+    ctx.fillText('FREE ROAM — Wilwatikta is yours', 366, 38);
     ctx.fillStyle = 'rgba(255,255,255,0.65)';
     ctx.font = '12px ' + FONT;
     ctx.fillText('Drive, explore, and stay out of trouble.', 366, 58);
@@ -388,14 +388,14 @@ function drawTitle(ctx, world, best, ui) {
   ctx.shadowBlur = 28;
   ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 86px ' + FONT;
-  ctx.fillText('COSTA ALBA', 640, 178);
+  ctx.fillText('WILWATIKTA', 640, 178);
   ctx.restore();
   ctx.fillStyle = '#ffd94d';
   ctx.font = 'bold 20px ' + FONT;
   ctx.fillText('A  M A K E  G T A  6  S T O R Y', 640, 212);
   ctx.fillStyle = 'rgba(255,255,255,0.85)';
   ctx.font = '16px ' + FONT;
-  ctx.fillText('Lena Rook. Twelve jobs. One city to take.', 640, 244);
+  ctx.fillText('Sugeng Wibowo. Twelve jobs. One city to take.', 640, 244);
   if (ui.slotSelect) {
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 22px ' + FONT;
@@ -444,7 +444,7 @@ function drawGarage(ctx, world, ui) {
   ctx.textAlign = 'center';
   ctx.fillStyle = '#ffd94d';
   ctx.font = 'bold 34px ' + FONT;
-  ctx.fillText("EDDIE'S GARAGE", 640, 162);
+  ctx.fillText("BENGKEL BAMBANG", 640, 162);
   ctx.fillStyle = '#7ee787';
   ctx.font = 'bold 18px ' + FONT;
   ctx.fillText(`CASH  $${world.player.cash.toLocaleString('en-US')}`, 640, 192);
@@ -454,7 +454,7 @@ function drawGarage(ctx, world, ui) {
     { label: `ENGINE  LVL ${engine}/3`, detail: engine >= 3 ? 'MAXED OUT' : `+$${UPGRADES.engine.costs[engine]} — faster top speed` },
     { label: `ARMOR  LVL ${armor}/3`, detail: armor >= 3 ? 'MAXED OUT' : `+$${UPGRADES.armor.costs[armor]} — tougher cars, more armor` },
     { label: 'REPAIR CAR', detail: world.player.car ? `$${UPGRADES.repairCost} — fix the car you are driving` : 'No car — steal one first' },
-    { label: 'REFILL ARMOR', detail: `$${UPGRADES.armorRefillCost} — top up Lena's armor` },
+    { label: 'REFILL ARMOR', detail: `$${UPGRADES.armorRefillCost} — top up Sugeng's armor` },
     { label: 'BACK', detail: '' },
   ];
   options.forEach((opt, i) => {
@@ -485,8 +485,8 @@ function drawHowTo(ctx) {
   ctx.fillStyle = '#ffffff';
   ctx.font = '16px ' + FONT;
   const lines = [
-    'You are Lena Rook, getaway driver, new in Costa Alba.',
-    'Eddie Vance has twelve jobs for you. Follow the gold',
+    'You are Sugeng Wibowo, getaway driver, new in Wilwatikta.',
+    'Agus Prasetyo has twelve jobs for you. Follow the gold',
     'marker, finish the job, get paid, stay alive.',
     '',
     'WASD / arrows — drive or walk (hold SHIFT to sprint)',
@@ -524,7 +524,7 @@ function drawPassed(ctx, world) {
   ctx.textAlign = 'left';
   ctx.fillText('✓  Objective complete', 440, 312);
   if (passed.bonus > 0) ctx.fillText('✓  Time bonus — escaped with time to spare', 440, 340);
-  ctx.fillText('✓  Lena walks away clean', 440, passed.bonus > 0 ? 368 : 340);
+  ctx.fillText('✓  Sugeng walks away clean', 440, passed.bonus > 0 ? 368 : 340);
   ctx.textAlign = 'center';
   ctx.fillStyle = '#7ee787';
   ctx.font = 'bold 20px ' + FONT;
@@ -548,7 +548,7 @@ function drawOver(ctx, world, screen, best) {
   ctx.fillText(busted ? 'BUSTED' : 'WASTED', 640, 260);
   ctx.fillStyle = '#ffffff';
   ctx.font = '18px ' + FONT;
-  ctx.fillText(busted ? 'CAPD caught Lena. The city keeps its secrets.' : 'Lena went down swinging. Costa Alba moves on.', 640, 302);
+  ctx.fillText(busted ? 'WPD caught Sugeng. The city keeps its secrets.' : 'Sugeng went down swinging. Wilwatikta moves on.', 640, 302);
   ctx.font = '16px ' + FONT;
   ctx.fillStyle = 'rgba(255,255,255,0.8)';
   ctx.fillText(`Missions done ${world.stats.missionsDone}/12 · Cash $${world.player.cash.toLocaleString('en-US')} · Best $${(best ?? 0).toLocaleString('en-US')}`, 640, 348);

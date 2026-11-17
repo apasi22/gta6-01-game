@@ -1,6 +1,6 @@
-// Combat: Lena's pistol, the SMG Eddie hands over after five jobs, her fists, and
+// Combat: Sugeng's pistol, the SMG Agus hands over after five jobs, his fists, and
 // everything that blows up. Bullets fly from the player toward the mouse, punch is
-// a short arc in front of her, and a car whose health reaches zero goes up in an
+// a short arc in front of him, and a car whose health reaches zero goes up in an
 // explosion that hurts whatever is close. Particles (smoke, sparks, muzzle flash,
 // explosion) live here too.
 import { WANTED } from './config.js';
@@ -121,11 +121,11 @@ function stepParticles(world, dt) {
 export function stepCombat(world, dt, ctl) {
   if (world.over) return;
   const player = world.player;
-  // Eddie's SMG: five jobs in, the pistol gets retired.
+  // Agus's SMG: five jobs in, the pistol gets retired.
   if (player.weapon === 'PISTOL' && world.stats.missionsDone >= 5) {
     player.weapon = 'SMG';
     player.ammo = WEAPONS.SMG.mag;
-    showDialogue(world, 'EDDIE', 'You earned this. Thirty rounds — spend them wisely.', 5);
+    showDialogue(world, 'AGUS', 'You earned this. Thirty rounds — spend them wisely.', 5);
   }
   if (ctl.shoot) shoot(world, ctl);
   if (ctl.punch) punch(world);

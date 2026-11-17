@@ -1,8 +1,8 @@
 // Drawing only: the world's state and the current screen in, pixels out. The camera
-// follows Lena with a smooth lerp, a closer zoom and a shake on impacts; only the
+// follows Sugeng with a smooth lerp, a closer zoom and a shake on impacts; only the
 // blocks in view are painted. The city is drawn ground first — ocean and boats,
 // beach, district grounds, sidewalks, roads with dashes and crosswalks — then
-// buildings with signs and lit windows, props, cars, pedestrians and Lena, the
+// buildings with signs and lit windows, props, cars, pedestrians and Sugeng, the
 // helicopter and its searchlight, particles, day/dusk/night light, and the HUD.
 import { DISTRICTS, FIELD, FONT, PALETTE, ROAD_W, STREET, STREET0, WORLD, ZOOM } from './config.js';
 import { BLOCK_COLS, BLOCK_ROWS } from './world.js';
