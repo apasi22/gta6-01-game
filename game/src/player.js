@@ -1,12 +1,20 @@
-// Mara Voss on foot and behind the wheel: walking and sprinting, arcade car physics
-// (accelerate, steer, handbrake), getting in and out of cars with E, and the collisions
-// that follow — buildings stop you, other cars dent you, pedestrians get run over.
-import { CAR, PLAYER, WANTED } from './config.js';
+// Lena Rook on foot and behind the wheel: walking and sprinting, arcade car physics
+// (accelerate, steer, handbrake), getting in and out of cars with E, body armor that
+// absorbs damage, garage upgrades that make cars faster and tougher, and the
+// collisions that follow — buildings stop you, other cars dent you, pedestrians get
+// run over.
+import { CAR, PLAYER, UPGRADES, WANTED } from './config.js';
 import { addWanted, clampToWorld, collidesBuilding, showBanner } from './world.js';
 
 function damagePlayer(world, amount) {
   const player = world.player;
   if (player.invuln > 0) return;
+  // Body armor absorbs 60% of a hit until it is gone.
+  if (player.armor > 0) {
+    const absorbed = Math.min(player.armor, Math.round(amount * 0.6));
+    player.armor -= absorbed;
+    amount -= absorbed;
+  }
   player.health -= amount;
   player.invuln = 0.5;
   player.lastDamage = world.time;
@@ -49,10 +57,14 @@ function enterCar(world, car) {
   player.y = car.y;
   player.angle = car.angle;
   player.speed = 0;
+  // Garage armor reinforces any car Lena takes.
+  const bonus = UPGRADES.armor.health[world.upgrades.armor - 1] ?? 0;
+  car.maxHealth = CAR.health + bonus;
+  if (world.upgrades.armor > 0) car.health = car.maxHealth;
   if (car.kind === 'parked' || car.kind === 'traffic') {
     world.stats.carsStolen += 1;
     addWanted(world, WANTED.crimeSteal);
-    showBanner(world, car.kind === 'parked' ? 'Car stolen — the Solmar PD noticed.' : 'Carjacked — the Solmar PD noticed.', 3);
+    showBanner(world, car.kind === 'parked' ? `Stole the ${car.model} — CAPD noticed.` : `Carjacked the ${car.model} — CAPD noticed.`, 3);
   }
   if (car.kind === 'police') {
     addWanted(world, WANTED.crimeSteal + 1);
@@ -97,8 +109,11 @@ function stepDriving(world, dt, ctl) {
     player.onFoot = true;
     return;
   }
+  const speedMul = 1 + (UPGRADES.engine.speed[world.upgrades.engine - 1] ?? 0);
+  const maxSpeed = CAR.maxSpeed * speedMul;
+  const accel = CAR.accel * (1 + speedMul * 0.2);
   const handbrake = ctl.brake;
-  if (ctl.throttle > 0) player.speed += CAR.accel * ctl.throttle * dt;
+  if (ctl.throttle > 0) player.speed += accel * ctl.throttle * dt;
   else if (ctl.throttle < 0) {
     player.speed += (player.speed > 20 ? -CAR.brake : CAR.reverseAccel * ctl.throttle) * dt;
   } else {
@@ -107,8 +122,8 @@ function stepDriving(world, dt, ctl) {
   if (handbrake) {
     player.speed -= Math.sign(player.speed) * Math.min(Math.abs(player.speed), 700 * dt);
   }
-  player.speed = Math.max(-CAR.maxReverse, Math.min(CAR.maxSpeed, player.speed));
-  const turn = (handbrake ? CAR.handbrakeTurn : CAR.turnRate) * (Math.abs(player.speed) / CAR.maxSpeed);
+  player.speed = Math.max(-CAR.maxReverse, Math.min(maxSpeed, player.speed));
+  const turn = (handbrake ? CAR.handbrakeTurn : CAR.turnRate) * (Math.abs(player.speed) / maxSpeed);
   player.angle += ctl.steer * turn * dt * Math.sign(player.speed);
   car.angle = player.angle;
 
@@ -120,8 +135,11 @@ function stepDriving(world, dt, ctl) {
   player.y = spot.y;
   car.x = player.x;
   car.y = player.y;
-  // A hard stop against a wall dents the car.
-  if ((spot.x === before.x && dx !== 0) || (spot.y === before.y && dy !== 0)) {
+  // A hard stop against a wall dents the car. The movement test needs an epsilon:
+  // at a cardinal heading the perpendicular component is float noise (~1e-15, from
+  // sin(pi) and cos(pi/2)), which never moves the coordinate — without the epsilon
+  // every north/south/west step would look "blocked" and the car would crawl.
+  if ((Math.abs(dx) > 1e-9 && spot.x === before.x) || (Math.abs(dy) > 1e-9 && spot.y === before.y)) {
     if (Math.abs(player.speed) > 240) {
       car.health -= Math.abs(player.speed) * 0.02;
       world.shake = Math.max(world.shake, 4);

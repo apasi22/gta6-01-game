@@ -1,14 +1,17 @@
-// Combat: Mara's pistol, her fists, and everything that blows up. Bullets fly from the
-// player toward the mouse, punch is a short arc in front of her, and a car whose health
-// reaches zero goes up in an explosion that hurts whatever is close. Particles (smoke,
-// sparks, muzzle flash, explosion) live here too.
+// Combat: Lena's pistol, the SMG Eddie hands over after five jobs, her fists, and
+// everything that blows up. Bullets fly from the player toward the mouse, punch is
+// a short arc in front of her, and a car whose health reaches zero goes up in an
+// explosion that hurts whatever is close. Particles (smoke, sparks, muzzle flash,
+// explosion) live here too.
 import { WANTED } from './config.js';
-import { addWanted, collidesBuilding, showBanner } from './world.js';
+import { addWanted, collidesBuilding, showBanner, showDialogue } from './world.js';
 import { damagePlayer } from './player.js';
 
 const BULLET_SPEED = 900;
-const PISTOL_MAG = 12;
-const RELOAD_SECONDS = 1.2;
+const WEAPONS = {
+  PISTOL: { mag: 12, interval: 0.16, reload: 1.2, flash: 3 },
+  SMG: { mag: 30, interval: 0.09, reload: 1.4, flash: 5 },
+};
 
 function spawnParticles(world, x, y, count, color, speed, life, size) {
   for (let i = 0; i < count; i += 1) {
@@ -31,7 +34,7 @@ function explodeCar(world, car) {
   spawnParticles(world, car.x, car.y, 18, '#e74c3c', 180, 1.1, 12);
   spawnParticles(world, car.x, car.y, 12, '#555555', 90, 1.6, 14);
   const player = world.player;
-  const d = Math.hypot(player.x - car.x, player.y - car.y);
+  const d = Math.hypot(player.x - car.x, player.y - player.y);
   if (d < 130) damagePlayer(world, Math.round(40 * (1 - d / 130)) + 10);
   for (const ped of world.peds) {
     if (ped.state !== 'down' && Math.hypot(ped.x - car.x, ped.y - car.y) < 110) {
@@ -56,9 +59,10 @@ function witnessNearby(world, x, y, range) {
 
 function shoot(world, ctl) {
   const player = world.player;
+  const weapon = WEAPONS[player.weapon] ?? WEAPONS.PISTOL;
   if (!player.onFoot || player.ammo <= 0 || player.reload > 0) return;
   player.ammo -= 1;
-  player.reload = player.ammo === 0 ? RELOAD_SECONDS : 0.16;
+  player.reload = player.ammo === 0 ? weapon.reload : weapon.interval;
   if (player.ammo === 0) showBanner(world, 'Reloading…', 1);
   world.stats.shotsFired += 1;
   world.lastShotX = player.x;
@@ -70,7 +74,7 @@ function shoot(world, ctl) {
     x: player.x + Math.cos(angle) * 22, y: player.y + Math.sin(angle) * 22,
     angle, speed: BULLET_SPEED, life: 1.1, from: 'player',
   });
-  spawnParticles(world, player.x + Math.cos(angle) * 26, player.y + Math.sin(angle) * 26, 3, '#ffd94d', 120, 0.15, 5);
+  spawnParticles(world, player.x + Math.cos(angle) * 26, player.y + Math.sin(angle) * 26, weapon.flash, '#ffd94d', 120, 0.15, 5);
   world.gunshot = true;
   if (witnessNearby(world, player.x, player.y, 500)) addWanted(world, WANTED.crimeShoot);
 }
@@ -116,11 +120,18 @@ function stepParticles(world, dt) {
 /** One fixed step: firing, punching, bullets, explosions, particles. */
 export function stepCombat(world, dt, ctl) {
   if (world.over) return;
+  const player = world.player;
+  // Eddie's SMG: five jobs in, the pistol gets retired.
+  if (player.weapon === 'PISTOL' && world.stats.missionsDone >= 5) {
+    player.weapon = 'SMG';
+    player.ammo = WEAPONS.SMG.mag;
+    showDialogue(world, 'EDDIE', 'You earned this. Thirty rounds — spend them wisely.', 5);
+  }
   if (ctl.shoot) shoot(world, ctl);
   if (ctl.punch) punch(world);
   // Ammo refills on its own once the magazine is empty.
-  const player = world.player;
-  if (player.ammo === 0 && player.reload <= 0) player.ammo = PISTOL_MAG;
+  const weapon = WEAPONS[player.weapon] ?? WEAPONS.PISTOL;
+  if (player.ammo === 0 && player.reload <= 0) player.ammo = weapon.mag;
 
   for (const bullet of world.bullets) {
     bullet.x += Math.cos(bullet.angle) * bullet.speed * dt;
@@ -183,4 +194,4 @@ export function stepCombat(world, dt, ctl) {
   stepParticles(world, dt);
 }
 
-export { spawnParticles, explodeCar, PISTOL_MAG };
+export { spawnParticles, explodeCar, WEAPONS };

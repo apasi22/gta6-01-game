@@ -1,19 +1,21 @@
-# SOLMAR — Make GTA 6
+# COSTA ALBA — Make GTA 6
 
 [![gta6-01](https://make.fun/badge/gta6-01.svg)](https://make.fun/competitions/gta6-01)
 [![rank](https://make.fun/badge/gta6-01/apasi22/gta6-01-game/rank.svg)](https://make.fun/competitions/gta6-01)
 [![reward](https://make.fun/badge/gta6-01/apasi22/gta6-01-game/reward.svg)](https://make.fun/competitions/gta6-01)
 
 A complete 2D top-down open-world crime game in the spirit of GTA 6 — an original
-sun-soaked coastal city, an original getaway driver, and five story missions. Plain
-JavaScript + Canvas 2D, zero libraries, zero external assets, zero network requests:
-every pixel is drawn procedurally and every sound is synthesized.
+sun-soaked coastal city in six named districts, an original getaway driver, and a
+twelve-mission story chain. Plain JavaScript + Canvas 2D, zero libraries, zero
+external assets, zero network requests: every pixel is drawn procedurally and every
+sound — including a two-station radio loop — is synthesized.
 
 ## Play
 
-You are **Mara Voss**, a getaway driver in the city of **Solmar**. Steal cars, outrun
-the Solmar PD, and work through the five-job story chain — from a first delivery at
-the harbor docks to a finale at the beach mansion.
+You are **Lena Rook**, a getaway driver new in the city of **Costa Alba**. Eddie
+Vance, a fixer with twelve jobs and a long memory, sends you from a first delivery
+at the Porto Marina docks to a finale across the whole city — stealing coupes,
+losing the CAPD helicopter, and surviving a double cross.
 
 Serve it locally and open it in a desktop browser:
 
@@ -28,30 +30,45 @@ node serve.ts
 | --- | --- |
 | W A S D / arrows | Walk, or drive (throttle / steer) |
 | E | Enter / exit / steal a car |
-| Mouse + click | Aim and shoot the pistol |
-| Space | Handbrake (in a car) / punch (on foot) |
-| Shift | Sprint |
-| H | Horn |
+| Mouse + click | Aim and shoot |
+| Space | Handbrake (in a car) / shoot (on foot) |
+| F | Punch |
+| Q / H | Horn |
+| R | Change radio station |
+| G | Garage / upgrades |
 | M | Mute |
 | P / Esc | Pause |
+| 1–3 | Choose a save slot on the title screen |
 
 ## Systems
 
-- **Open world** — a 3840×2880 seeded city: harbor, downtown, beach boulevard and
-  suburbs, with parks, parking lots, traffic and pedestrians on a real street grid.
+- **Open world** — a 3840×2880 seeded city in six districts: Porto Marina, El
+  Centro, Alba Beach, Mercado, Las Palmas and the Gilded Strip, with labeled
+  businesses, crosswalks, parks, parking lots, palms, boats, traffic and
+  pedestrians on a real street grid.
 - **Driving** — arcade car physics with acceleration, steering, handbrake slides,
-  collisions, damage and explosions; steal any parked or traffic car.
-- **Wanted level** — 0–5 stars. Crimes draw cop cars and foot cops; stay out of sight
-  and the heat decays.
-- **Missions** — a five-job story chain with objectives, dialogue, timers and cash
-  rewards, tracked on the HUD and the minimap.
-- **Combat** — pistol with ammo and reload, punching, bullets, and car explosions.
-- **HUD + minimap** — cash, health, ammo, wanted stars, mission objective, in-game
-  clock, and a circular minimap with the player, the objective and police blips.
-- **Feel** — camera follow with look-ahead, screen shake, tire smoke, muzzle flash,
-  dusk lighting, and synthesized engine hum, sirens, gunshots and chimes.
-- **Save** — progress (cash, mission, position) is saved to localStorage; press C on
-  the title screen to continue.
+  collisions, damage and explosions; steal any parked or traffic car, from a
+  Rustler to a gold coupe.
+- **Wanted level** — 0–5 stars. Crimes draw cop cars and foot cops, a helicopter
+  with a searchlight at four stars, and roadblocks across your route; stay out of
+  sight and the heat decays.
+- **Missions** — a twelve-job story chain with objectives, timers, dialogue,
+  cash rewards, time bonuses and a MISSION PASSED screen, tracked on the HUD and
+  the minimap.
+- **Combat** — pistol and (after five jobs) SMG with ammo and reload, punching,
+  bullets, and car explosions.
+- **HUD** — cash, health + armor bars, weapon + ammo, wanted stars, REP level,
+  district banner, mission banner with timer and distance, circular minimap with
+  route and police blips, speedometer, radio widget, police-dispatch text and
+  character dialogue.
+- **Screens** — title menu with three save slots, pause menu, Eddie's garage
+  (engine / armor upgrades, repairs, armor refills), How to Play, and
+  BUSTED / WASTED overlays.
+- **Feel** — closer camera with look-ahead, screen shake, tire smoke, muzzle
+  flash, day / dusk / night lighting with lit windows, headlights, and
+  synthesized engine hum, sirens, gunshots, chimes and radio music.
+- **Save** — progress (cash, mission, position, upgrades, armor, weapon) is saved
+  to localStorage in three slots; continue from the title screen.
 
 ## Screenshots
 
@@ -65,22 +82,23 @@ frame is what a short game really looks like.
 game/
   index.html        the page
   src/
-    main.js         boot + the one loop + screens
-    config.js       tuning + palette
+    main.js         boot + the one loop + the screen state machine
+    config.js       tuning + districts + radio + palette
     random.js       seeded RNG
-    world.js        the city of Solmar + the live world state
-    render.js       camera + drawing the city, cars and people
+    world.js        the city of Costa Alba + the live world state
+    render.js       camera + drawing the city, cars, people, helicopter
     input.js        keyboard + mouse
-    player.js       Mara on foot and behind the wheel
+    player.js       Lena on foot and behind the wheel
     traffic.js      traffic cars + pedestrians
-    police.js       wanted level + cop AI
-    missions.js     the five-mission story chain
-    combat.js       pistol, punch, bullets, explosions, particles
-    hud.js          HUD + minimap + screen overlays
-    audio.js        synthesized SFX (Web Audio)
-    save.js         localStorage save + best cash
+    police.js       wanted level + cop AI + helicopter + roadblocks
+    missions.js     the twelve-mission story chain
+    combat.js       pistol / SMG, punch, bullets, explosions, particles
+    hud.js          HUD + minimap + menus + screen overlays
+    audio.js        synthesized SFX + radio loop (Web Audio)
+    save.js         localStorage save slots + best cash
     shots.js        the four staged screenshot scenes
 ```
 
-Made for the make.fun **gta6-01** bounty. Solmar, Mara Voss and every name, place and
-system in this game are original — nothing is taken from Rockstar or any commercial game.
+Made for the make.fun **gta6-01** bounty. Costa Alba, Lena Rook, Eddie Vance and
+every name, place and system in this game are original — nothing is taken from
+Rockstar or any commercial game.

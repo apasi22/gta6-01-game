@@ -1,7 +1,8 @@
-// Solmar's traffic and its pedestrians. Traffic cars drive the street grid on the right
-// side of the road and turn at intersections; pedestrians walk the sidewalks and run when
-// a gun goes off or a car bears down on them. Both respawn near the player when they
-// wander too far, so the streets always feel alive.
+// Costa Alba's traffic and its pedestrians. Traffic cars drive the street grid on
+// the right side of the road and turn at intersections; pedestrians walk the
+// sidewalks, pause to look around, and run when a gun goes off or a car bears down
+// on them. Both respawn near the player when they wander too far, so the streets
+// always feel alive.
 import { PEDS, TRAFFIC } from './config.js';
 import { nearestIntersection, spawnParkedCar, spawnPed, spawnTrafficCar } from './world.js';
 
@@ -26,10 +27,8 @@ function chooseTurn(world, car) {
   const lane = laneOffset(newAxis, newDir);
   if (newAxis === 'x') {
     car.y = newLine + lane;
-    car.x = car.x; // keeps its along-road position
   } else {
     car.x = newLine + lane;
-    car.y = car.y;
   }
   car.axis = newAxis;
   car.dir = newDir;
@@ -97,7 +96,17 @@ function stepPed(world, ped, dt) {
     if (ped.fleeTimer <= 0) ped.state = 'walk';
     return;
   }
-  // Stroll the sidewalk; turn at intersections like the cars do.
+  if (ped.state === 'idle') {
+    ped.idleTimer -= dt;
+    if (ped.idleTimer <= 0) ped.state = 'walk';
+    return;
+  }
+  // Stroll the sidewalk; sometimes pause to look around; turn at intersections.
+  if (world.rng() < 0.002) {
+    ped.state = 'idle';
+    ped.idleTimer = 1 + world.rng() * 2;
+    return;
+  }
   const speed = ped.speed;
   if (ped.axis === 'x') ped.x += ped.dir * speed * dt;
   else ped.y += ped.dir * speed * dt;

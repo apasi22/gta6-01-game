@@ -1,10 +1,13 @@
-// The screenshot scenes behind ?shot=cover|foot|mission|chase. Each one sets the world to
-// a staged moment — Mara in a chase, on foot stealing a car, mid-mission, five stars —
-// then plays the real rules forward for a couple of seconds with a simple autopilot that
-// drives or walks toward the objective, so the frame is what real play looks like and the
-// same seed always gives the same frame. Missions are not stepped here: the staged mission
-// is the scene, and stepping it would complete it and change the shot.
+// The screenshot scenes behind ?shot=cover|foot|mission|chase. Each one sets the world
+// to a staged moment — Lena in a dusk chase with the helicopter overhead, on foot
+// stealing the gold coupe, mid-mission at night in the harbor, five stars with a
+// roadblock ahead — then plays the real rules forward for a couple of seconds with a
+// simple autopilot that drives or walks toward the objective, so the frame is what
+// real play looks like and the same seed always gives the same frame. Missions are
+// not stepped here: the staged mission is the scene, and stepping it would complete
+// it and change the shot.
 import { PALETTE, STEP } from './config.js';
+import { distToStreet } from './world.js';
 import { SCREEN_PLAY } from './render.js';
 import { stepPlayer } from './player.js';
 import { stepTraffic } from './traffic.js';
@@ -16,6 +19,9 @@ const FOOT_SECONDS = 2;
 const MISSION_SECONDS = 2;
 const CHASE_SECONDS = 2;
 
+const PARKED_MODELS = ['ALBA GT', 'COMET S', 'FALCON', 'DUCHESS', 'RUSTLER', 'SUNDANCE'];
+const PARKED_COLORS = ['#2980b9', '#f39c12', '#7f8c8d', '#27ae60', '#8e44ad', '#d35400'];
+
 function baseCtl() {
   return {
     mx: 0, my: 0, throttle: 0, steer: 0, brake: false, sprint: false,
@@ -23,17 +29,33 @@ function baseCtl() {
   };
 }
 
-/** Drive straight toward a point: pick the axis with the most distance left. */
+/** Drive toward a point along the streets: pick the axis with the most distance left,
+ * but only change axis at an intersection, and slow for the turn — so the car never
+ * cuts across blocks and never wedges itself against a building. Close in, aim
+ * straight at the point. */
 function driveCtl(world, tx, ty) {
   const player = world.player;
   const dx = tx - player.x;
   const dy = ty - player.y;
-  const desired = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 0 : Math.PI) : (dy > 0 ? Math.PI / 2 : -Math.PI / 2);
+  const dist = Math.hypot(dx, dy);
+  let desired;
+  if (dist < 120) {
+    desired = Math.atan2(dy, dx);
+  } else {
+    const travelingX = Math.abs(Math.cos(player.angle)) > Math.abs(Math.sin(player.angle));
+    const wantX = Math.abs(dx) > Math.abs(dy);
+    let goX = wantX;
+    if (wantX !== travelingX) {
+      const along = travelingX ? player.x : player.y;
+      if (distToStreet(along) > 70) goX = travelingX; // not at an intersection: keep going
+    }
+    desired = goX ? (dx > 0 ? 0 : Math.PI) : (dy > 0 ? Math.PI / 2 : -Math.PI / 2);
+  }
   let diff = desired - player.angle;
   while (diff > Math.PI) diff -= Math.PI * 2;
   while (diff < -Math.PI) diff += Math.PI * 2;
   const ctl = baseCtl();
-  ctl.throttle = Math.abs(diff) > 1.4 ? 0.35 : 1;
+  ctl.throttle = Math.abs(diff) > 0.6 ? 0.35 : 1;
   ctl.steer = Math.max(-1, Math.min(1, diff * 2));
   ctl.aimX = tx;
   ctl.aimY = ty;
@@ -54,10 +76,10 @@ function walkCtl(world, tx, ty) {
   return ctl;
 }
 
-function putPlayerInCar(world, x, y, angle, color) {
+function putPlayerInCar(world, x, y, angle, color, model) {
   const car = {
-    kind: 'player', x, y, angle, speed: 0,
-    color, health: 100, dead: false,
+    kind: 'player', x, y, angle, speed: 320,
+    color, model: model ?? 'ALBA GT', health: 100, maxHealth: 100, dead: false,
   };
   world.cars.push(car);
   const player = world.player;
@@ -74,7 +96,7 @@ function putPlayerInCar(world, x, y, angle, color) {
 function putCopCar(world, x, y, angle) {
   const car = {
     kind: 'police', x, y, angle, speed: 300,
-    color: '#f5f5f0', health: 100, dead: false, light: 0,
+    color: '#f5f5f0', model: 'CAPD CRUISER', health: 100, maxHealth: 100, dead: false, light: 0,
   };
   world.cars.push(car);
   return car;
@@ -88,11 +110,32 @@ function placeTraffic(world, x, y, axis, dir) {
     angle: axis === 'x' ? (dir === 1 ? 0 : Math.PI) : (dir === 1 ? Math.PI / 2 : -Math.PI / 2),
     dir, axis, line,
     speed: 170, maxSpeed: 180,
-    color: world.rng() < 0.5 ? '#2980b9' : '#f39c12',
-    health: 100, dead: false, atJunction: false,
+    color: PARKED_COLORS[Math.floor(world.rng() * PARKED_COLORS.length)],
+    model: PARKED_MODELS[Math.floor(world.rng() * PARKED_MODELS.length)],
+    health: 100, maxHealth: 100, dead: false, atJunction: false,
   };
   world.cars.push(car);
   return car;
+}
+
+function placeParked(world, x, y) {
+  const car = {
+    kind: 'parked', x, y, angle: world.rng() < 0.5 ? 0 : Math.PI / 2, speed: 0,
+    color: PARKED_COLORS[Math.floor(world.rng() * PARKED_COLORS.length)],
+    model: PARKED_MODELS[Math.floor(world.rng() * PARKED_MODELS.length)],
+    health: 100, maxHealth: 100, dead: false,
+  };
+  world.cars.push(car);
+  return car;
+}
+
+function placePed(world, x, y) {
+  world.peds.push({
+    x, y, angle: world.rng() * Math.PI * 2, dir: 1, axis: 'x', line: y,
+    speed: 55, color: PARKED_COLORS[Math.floor(world.rng() * PARKED_COLORS.length)],
+    state: 'walk', fleeTimer: 0, downTimer: 0, idle: false, idleTimer: 0,
+    atJunction: false, hp: 30,
+  });
 }
 
 function addSmoke(world, x, y, count) {
@@ -118,94 +161,171 @@ function playForward(world, seconds, ctlFor) {
     stepCombat(world, STEP, ctl);
     if (world.over) break;
   }
-  // The camera snaps to Mara: the shot is framed on her, not on the spawn point.
+  // The camera snaps to Lena: the shot is framed on her, not on the spawn point.
   world.camera.x = world.player.x;
   world.camera.y = world.player.y;
+  // The staged banner, dialogue and dispatch stay up for the screenshot.
   world.bannerUntil = world.time + 4;
+  if (world.dialogue) world.dialogueUntil = world.time + 5;
+  if (world.dispatch) world.dispatchUntil = world.time + 5;
 }
 
 function stageCover(world) {
-  // Dusk police chase downtown: Mara's red car east on 1680th street, two cop cars on
-  // her tail, three stars, mission 3's getaway on the HUD.
+  // Dusk chase with the helicopter: Lena west through downtown on 1680th street,
+  // four stars, mission 9's escape on the HUD, the helicopter overhead.
   world.clock = 18.67 * 3600;
-  world.wanted = 3;
+  world.day = 2;
+  world.wanted = 4;
   world.siren = true;
-  world.mission = { index: 2, step: 1, timer: 45, done: false };
-  world.banner = 'The alarm is up — three stars and counting!';
-  putPlayerInCar(world, 1500, 1680, 0, PALETTE.playerCar);
-  putCopCar(world, 1330, 1704, 0);
-  putCopCar(world, 1380, 1656, 0);
-  placeTraffic(world, 2100, 1704, 'x', 1);
-  placeTraffic(world, 2400, 1656, 'x', -1);
-  addSmoke(world, 1560, 1680, 8);
-  playForward(world, COVER_SECONDS, (w) => driveCtl(w, 3600, 1680));
+  world.dispatchTimer = 6;
+  world.mission = { index: 8, step: 1, timer: 45, done: false };
+  world.player.cash = 12480;
+  world.player.armor = 40;
+  world.player.weapon = 'SMG';
+  world.player.ammo = 30;
+  world.stats.missionsDone = 8;
+  world.station = 0;
+  world.track = 1;
+  world.banner = 'Outrun the helicopter — reach the docks!';
+  world.dialogue = 'Four stars and a helicopter. Time to show CAPD my taillights.';
+  world.dialogueSpeaker = 'LENA';
+  world.dispatch = 'CAPD DISPATCH: air support on scene, suspect heading west downtown.';
+  world.heli.x = 2400;
+  world.heli.y = 1500;
+  putPlayerInCar(world, 3120, 1680, Math.PI, PALETTE.playerCar, 'ALBA GT');
+  // The hero car is staged tough: the chase runs through downtown traffic, and the
+  // shot needs Lena driving at the end of it, not walking away from a wreck.
+  world.player.car.health = 400;
+  world.player.car.maxHealth = 400;
+  putCopCar(world, 3290, 1704, Math.PI);
+  putCopCar(world, 3240, 1656, Math.PI);
+  placeTraffic(world, 2664, 1400, 'y', 1);
+  placeTraffic(world, 2136, 1900, 'y', -1);
+  placeParked(world, 2700, 1730);
+  placeParked(world, 2050, 1630);
+  placePed(world, 2850, 1620);
+  placePed(world, 2400, 1740);
+  addSmoke(world, 3060, 1680, 8);
+  playForward(world, COVER_SECONDS, (w) => driveCtl(w, 240, 1680));
 }
 
 function stageFoot(world) {
-  // On foot downtown, closing on the red parked car while the street lives around her.
-  world.player.x = 2080;
-  world.player.y = 1740;
+  // On foot on the Gilded Strip in daylight, closing on the gold coupe while the
+  // street lives around her: pedestrians, traffic, neon signs, Eddie on the radio.
+  world.clock = 14.0 * 3600;
+  world.day = 1;
+  world.mission = { index: 1, step: 0, timer: 0, done: false };
+  world.player.cash = 850;
+  world.player.weapon = 'PISTOL';
+  world.player.ammo = 12;
+  world.stats.missionsDone = 1;
+  world.station = 1;
+  world.track = 2;
+  world.banner = 'Steal the gold coupe uptown';
+  world.dialogue = 'Gold coupe, keys in it. Bring it to the garage — and keep it quiet.';
+  world.dialogueSpeaker = 'EDDIE';
+  world.player.x = 3040;
+  world.player.y = 790;
   world.player.angle = 0;
   world.player.onFoot = true;
   world.player.car = null;
-  world.camera.x = 2160;
-  world.camera.y = 1680;
-  for (let i = 0; i < 4; i += 1) {
-    const angle = (i / 4) * Math.PI * 2;
-    world.peds.push({
-      x: 2160 + Math.cos(angle) * 130, y: 1680 + Math.sin(angle) * 130,
-      angle: world.rng() * Math.PI * 2, dir: 1, axis: 'x', line: 1680,
-      speed: 55, color: '#3498db', state: 'walk', fleeTimer: 0, downTimer: 0,
-      atJunction: false, hp: 30,
-    });
-  }
-  placeTraffic(world, 1900, 1704, 'x', 1);
-  placeTraffic(world, 2500, 1656, 'x', -1);
-  playForward(world, FOOT_SECONDS, (w) => walkCtl(w, 2260, 1720));
+  world.camera.x = 3120;
+  world.camera.y = 720;
+  const coupe = placeParked(world, 3170, 762);
+  coupe.color = PALETTE.missionCar;
+  coupe.model = 'GOLD COUPE';
+  coupe.missionCar = true;
+  placePed(world, 3050, 700);
+  placePed(world, 3200, 790);
+  placePed(world, 2960, 740);
+  placePed(world, 3260, 700);
+  placeTraffic(world, 2900, 744, 'x', 1);
+  placeTraffic(world, 3400, 696, 'x', -1);
+  placeParked(world, 3050, 790);
+  playForward(world, FOOT_SECONDS, (w) => walkCtl(w, 3110, 785));
+  // Lena ends the walk facing the coupe she came to steal.
+  world.player.angle = Math.atan2(coupe.y - world.player.y, coupe.x - world.player.x);
 }
 
 function stageMission(world) {
-  // Mission 3, the getaway: 45 seconds on the clock, three stars, the hideout marker
-  // ahead on 2160th street, Mara's car already at speed.
-  world.clock = 17.83 * 3600;
+  // Mission 11 at night in the harbor: 75 seconds on the clock, three stars, the
+  // escape marker ahead, Lena's car already at speed, lit windows everywhere.
+  world.clock = 21.5 * 3600;
+  world.day = 3;
   world.wanted = 3;
   world.siren = true;
-  world.mission = { index: 2, step: 1, timer: 45, done: false };
-  world.banner = 'Escape to the hideout — lose the cops!';
-  putPlayerInCar(world, 1680, 2160, Math.PI, PALETTE.playerCar);
-  putCopCar(world, 1860, 2136, Math.PI);
-  putCopCar(world, 1820, 2184, Math.PI);
-  addSmoke(world, 1620, 2160, 6);
-  playForward(world, MISSION_SECONDS, (w) => driveCtl(w, 720, 2160));
+  world.dispatchTimer = 6;
+  world.mission = { index: 10, step: 1, timer: 75, done: false };
+  world.player.cash = 6200;
+  world.player.armor = 25;
+  world.player.weapon = 'SMG';
+  world.player.ammo = 30;
+  world.stats.missionsDone = 10;
+  world.station = 0;
+  world.track = 0;
+  world.banner = 'It was a setup — run!';
+  world.dialogue = 'Eddie set me up. The case, the cops — all of it. I am done running.';
+  world.dialogueSpeaker = 'LENA';
+  world.dispatch = 'CAPD DISPATCH: suspect fleeing the marina, all units converge.';
+  putPlayerInCar(world, 720, 2160, -Math.PI / 2, PALETTE.playerCar, 'COMET S');
+  world.player.car.health = 400;
+  world.player.car.maxHealth = 400;
+  putCopCar(world, 696, 2340, -Math.PI / 2);
+  putCopCar(world, 744, 2300, -Math.PI / 2);
+  placeTraffic(world, 1000, 1704, 'x', 1);
+  placeParked(world, 670, 1500);
+  placePed(world, 800, 1450);
+  addSmoke(world, 720, 2220, 6);
+  playForward(world, MISSION_SECONDS, (w) => driveCtl(w, 720, 240));
 }
 
 function stageChase(world) {
-  // Five stars: Mara flat out east on 1200th street, two cops chasing, two more forming
-  // a roadblock ahead, smoke trailing from her car.
+  // Five stars at dusk: Lena flat out east on 1200th street, two cops chasing, the
+  // helicopter overhead, a roadblock ahead, smoke trailing from her car.
   world.clock = 18.33 * 3600;
+  world.day = 3;
   world.wanted = 5;
   world.siren = true;
-  world.mission = { index: 2, step: 1, timer: 38, done: false };
-  world.banner = 'Five stars. Every cop in Solmar is coming.';
-  putPlayerInCar(world, 1200, 1200, 0, PALETTE.playerCar);
+  world.dispatchTimer = 6;
+  world.mission = { index: 11, step: 1, timer: 38, done: false };
+  world.player.cash = 9870;
+  world.player.armor = 50;
+  world.player.weapon = 'SMG';
+  world.player.ammo = 30;
+  world.stats.missionsDone = 11;
+  world.station = 1;
+  world.track = 3;
+  world.banner = 'Five stars. Every cop in Costa Alba is coming.';
+  world.dialogue = 'One case, one ride across the whole city. Then Costa Alba is mine.';
+  world.dialogueSpeaker = 'LENA';
+  world.dispatch = 'CAPD DISPATCH: roadblock set — stop the suspect at the intersection.';
+  world.heli.x = 1400;
+  world.heli.y = 1020;
+  putPlayerInCar(world, 1200, 1200, 0, PALETTE.playerCar, 'ALBA GT');
   putCopCar(world, 1030, 1224, 0);
   putCopCar(world, 1080, 1176, 0);
   const block1 = putCopCar(world, 2400, 1176, Math.PI / 2);
   block1.speed = 0;
+  block1.blockade = true;
   const block2 = putCopCar(world, 2400, 1224, -Math.PI / 2);
   block2.speed = 0;
+  block2.blockade = true;
+  world.roadblock = { x: 2400, y: 1200, horizontal: true, cars: [block1, block2] };
+  placeTraffic(world, 1700, 1224, 'x', -1);
+  placeParked(world, 1900, 1150);
   addSmoke(world, 1260, 1200, 10);
   playForward(world, CHASE_SECONDS, (w) => driveCtl(w, 3600, 1200));
 }
 
 /**
  * Set `world` to the named scene (cover, foot, mission or chase; anything else is cover)
- * and return the screen to draw over it and the best score to show.
+ * and return the screen to draw over it, the best score to show, and the menu state.
  */
 export function stageShot(name, world) {
+  world.shotStaging = true; // staged scenes place their own police furniture by hand
   if (name === 'foot') stageFoot(world);
   else if (name === 'mission') stageMission(world);
   else if (name === 'chase') stageChase(world);
   else stageCover(world);
-  return { screen: SCREEN_PLAY, best: 0 };
+  return { screen: SCREEN_PLAY, best: 0, ui: { menuIndex: 0, slotSelect: false, garageIndex: 0, saves: [] } };
 }

@@ -1,12 +1,25 @@
-// Synthesized sound, no audio files: engine hum, sirens, gunshots, pickup chimes and
-// explosions, all made with the Web Audio API. Everything is guarded — audio only starts
-// after a user gesture, and a missing AudioContext is silence, not an error.
+// Synthesized sound, no audio files: engine hum, sirens, gunshots, pickup chimes,
+// explosions, and a two-station radio loop — a bassline and arpeggio sequenced live
+// with the Web Audio API, a different tempo and feel per station. Everything is
+// guarded: audio only starts after a user gesture, and a missing AudioContext is
+// silence, not an error.
+import { RADIO } from './config.js';
+
+// Minor-pentatonic steps for COSTA FM, major-ish steps for RADIO ALBA.
+const SCALES = [[0, 3, 5, 7, 10, 12, 15], [0, 2, 4, 7, 9, 12, 14]];
+const PATTERNS = [
+  [0, -1, 2, -1, 4, -1, 3, 5, 0, -1, 2, 6, 4, 3, 2, 1],
+  [0, 2, -1, 4, -1, 3, 2, -1, 0, 4, -1, 5, 3, -1, 2, 1],
+];
+
 export function createAudio() {
   let ctx = null;
   let engineOsc = null;
   let engineGain = null;
   let sirenTimer = 0;
   let sirenHigh = false;
+  let nextNote = 0;
+  let noteStep = 0;
 
   function ensure() {
     if (ctx) return true;
@@ -20,19 +33,20 @@ export function createAudio() {
     return true;
   }
 
-  function tone(freq, dur, type, gainValue, slideTo) {
+  function tone(freq, dur, type, gainValue, slideTo, when) {
     if (!ctx) return;
     try {
+      const t0 = when ?? ctx.currentTime;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = type;
-      osc.frequency.setValueAtTime(freq, ctx.currentTime);
-      if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, ctx.currentTime + dur);
-      gain.gain.setValueAtTime(gainValue, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+      osc.frequency.setValueAtTime(freq, t0);
+      if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, t0 + dur);
+      gain.gain.setValueAtTime(gainValue, t0);
+      gain.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
       osc.connect(gain).connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + dur);
+      osc.start(t0);
+      osc.stop(t0 + dur);
     } catch {
       // Audio is best-effort.
     }
@@ -84,15 +98,37 @@ export function createAudio() {
     if (!ensure()) return false;
     if (ctx.state === 'suspended') ctx.resume().catch(() => {});
     startEngine();
+    nextNote = ctx.currentTime + 0.1;
     return true;
   }
 
-  /** Per-frame audio: engine pitch follows speed, sirens wail while wanted. */
+  /** Schedule the radio loop a little ahead of the playhead. */
+  function radio(world) {
+    if (!ctx || world.muted) return;
+    const station = RADIO[world.station] ?? RADIO[0];
+    const stepDur = 60 / station.bpm / 2;
+    const scale = SCALES[world.station] ?? SCALES[0];
+    const pattern = PATTERNS[world.station] ?? PATTERNS[0];
+    while (nextNote < ctx.currentTime + 0.25) {
+      const idx = pattern[noteStep % pattern.length];
+      if (idx >= 0) {
+        const freq = station.root * 2 * Math.pow(2, scale[idx % scale.length] / 12);
+        tone(freq, stepDur * 0.9, 'triangle', 0.035, null, nextNote);
+      }
+      if (noteStep % 4 === 0) tone(station.root, stepDur * 1.8, 'sine', 0.05, null, nextNote);
+      nextNote += stepDur;
+      noteStep += 1;
+    }
+  }
+
+  /** Per-frame audio: engine pitch follows speed, sirens wail while wanted, radio plays. */
   function step(world, dt) {
-    if (!ctx || world.muted) {
+    if (!ctx) return;
+    if (world.muted) {
       if (engineGain) engineGain.gain.value = 0;
       return;
     }
+    radio(world);
     const player = world.player;
     if (engineGain) {
       const target = !player.onFoot && player.car ? 0.05 + (Math.abs(player.speed) / 560) * 0.06 : 0;

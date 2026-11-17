@@ -1,9 +1,20 @@
-// The Solmar PD: the wanted level, cop cars that chase and ram, and foot cops that
-// chase on foot and bust you. Cops spawn on roads near the player (never on top of them),
-// give up and despawn when far away, and the heat decays when you stay out of sight.
+// The CAPD: the wanted level, cop cars that chase and ram, foot cops that chase on
+// foot and bust you, a helicopter with a searchlight at four stars and up, and
+// roadblocks thrown across your route. Cops spawn on roads near the player (never on
+// top of them), give up when far away, and the heat decays when you stay out of sight
+// — unless the helicopter is overhead, watching.
 import { CAR, COP, WANTED } from './config.js';
-import { addWanted, randomRoadPoint, showBanner } from './world.js';
+import { addWanted, nearestIntersection, randomRoadPoint, showBanner, showDispatch } from './world.js';
 import { damagePlayer } from './player.js';
+
+const DISPATCH = [
+  'CAPD DISPATCH: suspect in a stolen car, last seen heading downtown.',
+  'CAPD DISPATCH: all units, armed driver — approach with caution.',
+  'CAPD DISPATCH: air support requested, suspect still mobile.',
+  'CAPD DISPATCH: roadblock units, cover the beach route.',
+  'CAPD DISPATCH: suspect vehicle damaged, smoking — close in.',
+  'CAPD DISPATCH: keep the perimeter tight, she is running out of road.',
+];
 
 function nearestCopDistance(world) {
   let best = Infinity;
@@ -27,7 +38,8 @@ function spawnCopCar(world) {
     if (d > 650 && d < 1000) {
       world.cars.push({
         kind: 'police', x, y, angle: Math.atan2(player.y - y, player.x - x), speed: 0,
-        color: '#f5f5f0', health: CAR.health, dead: false, light: 0,
+        color: '#f5f5f0', model: 'CAPD CRUISER', health: CAR.health, maxHealth: CAR.health,
+        dead: false, light: 0,
       });
       return;
     }
@@ -42,6 +54,35 @@ function spawnFootCop(world) {
     kind: 'cop', x: player.x + Math.cos(angle) * d, y: player.y + Math.sin(angle) * d,
     angle, speed: COP.footSpeed, hp: 50, state: 'chase',
   });
+}
+
+/** Throw a roadblock across the road ahead of the player: two parked cruisers. */
+function spawnRoadblock(world) {
+  const player = world.player;
+  const ahead = { x: player.x + Math.cos(player.angle) * 700, y: player.y + Math.sin(player.angle) * 700 };
+  const junction = nearestIntersection(ahead.x, ahead.y);
+  const horizontal = Math.abs(player.angle) < Math.PI / 4 || Math.abs(player.angle) > (3 * Math.PI) / 4;
+  const cars = [];
+  for (const side of [-26, 26]) {
+    const car = {
+      kind: 'police', blockade: true,
+      x: horizontal ? junction.x : junction.x + side,
+      y: horizontal ? junction.y + side : junction.y,
+      angle: horizontal ? Math.PI / 2 : 0, speed: 0,
+      color: '#f5f5f0', model: 'CAPD CRUISER', health: CAR.health, maxHealth: CAR.health,
+      dead: false, light: 0,
+    };
+    world.cars.push(car);
+    cars.push(car);
+  }
+  world.roadblock = { x: junction.x, y: junction.y, horizontal, cars };
+  showDispatch(world, 'CAPD DISPATCH: roadblock set — stop the suspect at the intersection.', 5);
+}
+
+function clearRoadblock(world) {
+  if (!world.roadblock) return;
+  for (const car of world.roadblock.cars) car.dead = true;
+  world.roadblock = null;
 }
 
 /** Steer a car toward a point with the same arcade physics the player uses. */
@@ -59,6 +100,7 @@ function steerCarToward(car, tx, ty, dt, maxSpeed) {
 function stepCopCar(world, car, dt) {
   const player = world.player;
   car.light += dt;
+  if (car.blockade) return; // roadblock cruisers hold their ground
   // Lead the target a little, so the chase cuts corners instead of tailing.
   const lead = 0.35;
   const tx = player.x + Math.cos(player.angle) * player.speed * lead;
@@ -87,18 +129,45 @@ function stepFootCop(world, cop, dt) {
   cop.y += Math.sin(cop.angle) * cop.speed * dt;
   if (d < COP.bustRange && player.onFoot) {
     world.over = 'busted';
-    showBanner(world, 'BUSTED — the Solmar PD caught you.', 4);
+    showBanner(world, 'BUSTED — CAPD caught you.', 4);
   }
   if (d > 1600) cop.hp = 0;
 }
 
-/** One fixed step: wanted decay, cop spawns, pursuit and busts. */
+function stepHeli(world, dt) {
+  const heli = world.heli;
+  const player = world.player;
+  heli.active = world.wanted >= 4 && !world.over;
+  if (!heli.active) return;
+  heli.rotor += dt * 30;
+  // Shadow the player from up and to the side, searchlight on them.
+  const tx = player.x + 110;
+  const ty = player.y - 90;
+  const d = Math.hypot(tx - heli.x, ty - heli.y);
+  if (d > 4) {
+    const step = Math.min(d, COP.heliSpeed * dt);
+    heli.x += ((tx - heli.x) / d) * step;
+    heli.y += ((ty - heli.y) / d) * step;
+  }
+}
+
+/** One fixed step: wanted decay, cop spawns, pursuit, helicopter, roadblocks, busts. */
 export function stepPolice(world, dt) {
   if (world.over) return;
-  // Wanted decays when the heat is off: no crime lately and no cop close by.
+  stepHeli(world, dt);
+  // Dispatch chatter while wanted, rotating every few seconds.
+  if (world.wanted > 0) {
+    world.dispatchTimer -= dt;
+    if (world.dispatchTimer <= 0) {
+      world.dispatchTimer = 6;
+      showDispatch(world, DISPATCH[Math.floor(world.rng() * DISPATCH.length)], 5);
+    }
+  }
+  // Wanted decays when the heat is off: no crime lately, no cop close by, and no
+  // helicopter overhead keeping eyes on the player.
   if (world.wanted > 0) {
     world.wantedTimer += dt;
-    if (world.wantedTimer > WANTED.decaySeconds && world.time - world.lastCrime > 4 && nearestCopDistance(world) > 500) {
+    if (world.wantedTimer > WANTED.decaySeconds && world.time - world.lastCrime > 4 && !world.heli.active && nearestCopDistance(world) > 500) {
       const was = world.wanted;
       world.wanted -= 1;
       world.wantedTimer = 0;
@@ -109,6 +178,12 @@ export function stepPolice(world, dt) {
       }
     }
   }
+
+  // Roadblocks at four stars and up; cleared when the heat drops. Staged screenshot
+  // scenes set world.shotStaging and place their own roadblocks by hand, so the
+  // random spawn stays out of the frame there.
+  if (world.wanted >= 4 && !world.roadblock && !world.shotStaging && world.rng() < 0.01) spawnRoadblock(world);
+  if (world.wanted <= 2 && world.roadblock) clearRoadblock(world);
 
   const wantCars = Math.min(world.wanted, 4);
   const wantCops = world.wanted >= 2 ? Math.min(world.wanted - 1, 3) : 0;
@@ -127,3 +202,5 @@ export function stepPolice(world, dt) {
   }
   world.cops = world.cops.filter((cop) => cop.hp > 0);
 }
+
+export { spawnRoadblock, clearRoadblock };
